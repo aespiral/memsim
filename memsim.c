@@ -39,7 +39,6 @@ struct valor {
     char c;
 };
 
-// Representacoes dos tipos (campo tip)
 /*
  * Representacao  de uma celula de memoria com os seguintes campos:
  * - endereco
@@ -50,7 +49,7 @@ struct valor {
  *  |   struct memcel m1, m2;
  *  |   m1.end = 4097;
  *  |   m1.con = v1
- *  |   m1,tip = INT;
+ *  |   m1.tip = INT;
  *  |   m2.end = 4098;
  *  |   m2.con = v2;
  *  |   m2.tip = FLOAT;
@@ -112,7 +111,7 @@ struct memcel mem[TAM_MEM];
 #define DESREF_VAR 3
 struct acessa_variavel {
     int mod;
-    char * nom;
+    char nom[64];
 };
 
 /*
@@ -143,10 +142,10 @@ struct declaracao {
  * Atribuicoes sao representadas por dois campos:
  * - lhs (left handed side/ lado esquerdo)
  *      >> acesso a variavel, pode ser VAR ou DESREF_VAR
- * - rhs (riht handed side/ lado direito)
+ * - rhs (right handed side/ lado direito)
  *      >> pode ser acesso a variavel ou valor
  *  Exemplo:
- *  |    struct atribuiicao a1, a2;
+ *  |    struct atribuicao a1, a2;
  *  |    a1.mod = ATRIB_VAL;
  *  |    a1.lhs = t2;
  *  |    a1.rhs_val = v1;
@@ -251,7 +250,18 @@ void exec_dec(struct declaracao dec) {
     }
 
     // Preenche o tipo e o nome da celula
-    mem[i].tip = dec.tip;
+    switch(dec.var.mod) {
+        case VAR:
+            mem[i].tip = dec.tip;
+            break;
+
+        case DESREF_VAR:
+            switch(dec.tip) {
+                case INT: mem[i].tip = INT_PTR; break;
+                case FLOAT: mem[i].tip = FLOAT_PTR; break;
+                case CHAR: mem[i].tip = CHAR_PTR; break;
+            }
+    }
     strcpy(mem[i].nom, dec.var.nom);
 }
 
@@ -324,7 +334,7 @@ int main () {
     // sentenca:    char key
     struct acessa_variavel var1;
     var1.mod = VAR;
-    var1.nom = "key";
+    strcpy(var1.nom, "key");
 
     struct declaracao dec1;
     dec1.tip = CHAR;
@@ -348,12 +358,25 @@ int main () {
     st2.mod = STNC_ATR;
     st2.atr = atr1;
 
+    // sentenca:    char * p
+    struct acessa_variavel var_ast_p;
+    var_ast_p.mod = DESREF_VAR;
+    strcpy(var_ast_p.nom, "p");
+
+    struct declaracao dec_char_ast_p;
+    dec_char_ast_p.tip = CHAR;
+    dec_char_ast_p.var = var_ast_p;
+
+    struct sentenca st_char_ast_p;
+    st_char_ast_p.mod = STNC_DEC;
+    st_char_ast_p.dec = dec_char_ast_p;
 
     // Mostra o programa
 
     // Executa o programa
     executa(st1);
     executa(st2);
+    executa(st_char_ast_p);
 
     // Mostra a memória
     pprint_mem(END_INI, END_INI+10);
