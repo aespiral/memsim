@@ -184,7 +184,7 @@ struct sentenca programa[TAM_PROG];
  * Pretty Print da memoria
  */
 void pprint_mem(int comeco, int fim) {
-    char* barra = "+======+=======+===========+";
+    char* barra = "+======+=======+===========+==--...";
     puts(barra);
     puts("| END  | VALOR | TIPO      | NOME");
     puts(barra);
@@ -236,52 +236,38 @@ void pprint_mem(int comeco, int fim) {
 /**********************************************************
  * Executa o programa
  */
-void executa(struct sentenca stn) {
+void exec_dec(struct declaracao dec) {
+
+    // Busca uma celula livre
+    int i;
+    for(i = 0; i < TAM_MEM; i = i + 1) {
+        if (mem[i].tip == LIVRE) {
+            break;
+        }
+    }
+    if (i == TAM_MEM) {
+        printf("ERRO: estouro da memória simulada!!\n");
+        exit(1);
+    }
+
+    // Preenche o tipo e o nome da celula
+    mem[i].tip = dec.tip;
+    strcpy(mem[i].nom, dec.var.nom);
+}
+
+void exec_atr(struct atribuicao atr) {
     int i;
     struct valor valor_lido;
-    switch(stn.mod) {
-        case STNC_DEC:
-            // Busca uma celula livre
-            for(i = 0; i < TAM_MEM; i = i + 1) {
-                if (mem[i].tip == LIVRE) {
-                    break;
-                }
-            }
-            if (i == TAM_MEM) {
-                printf("ERRO: estouro da memória simulada!!\n");
-                exit(1);
-            }
-
-            // Preenche o tipo e o nome da celula
-            mem[i].tip = stn.dec.tip;
-            strcpy(mem[i].nom, stn.dec.var.nom);
-
+    // Le o rhs
+    switch(atr.mod) {
+        case ATRIB_VAL:
+            valor_lido = atr.rhs_val;
             break;
-
-        case STNC_ATR:
-            // Le o rhs
-            switch(stn.atr.mod) {
-                case ATRIB_VAL:
-                    valor_lido = stn.atr.rhs_val;
-                    break;
-                case ATRIB_VAR:
-                    // Busca variavel pelo nome
-                    for(i = 0; i < TAM_MEM; i = i + 1) {
-                        if (strcmp(stn.atr.lhs.nom, mem[i].nom) == 0) {
-                            valor_lido = mem[i].con;
-                            break;
-                        }
-                    }
-                    if (i == TAM_MEM) {
-                        printf("Variavel nao encontrada\n");
-                        exit(2);
-                    }
-                    break;
-            }
-
-            // Escreve no lhs
+        case ATRIB_VAR:
+            // Busca variavel pelo nome
             for(i = 0; i < TAM_MEM; i = i + 1) {
-                if (strcmp(stn.atr.lhs.nom, mem[i].nom) == 0) {
+                if (strcmp(atr.lhs.nom, mem[i].nom) == 0) {
+                    valor_lido = mem[i].con;
                     break;
                 }
             }
@@ -289,12 +275,34 @@ void executa(struct sentenca stn) {
                 printf("Variavel nao encontrada\n");
                 exit(2);
             }
-            mem[i].con = valor_lido;
+            break;
+    }
 
+    // Escreve no lhs
+    // Busca variavel pelo nome
+    for(i = 0; i < TAM_MEM; i = i + 1) {
+        if (strcmp(atr.lhs.nom, mem[i].nom) == 0) {
+            break;
+        }
+    }
+    if (i == TAM_MEM) {
+        printf("Variavel nao encontrada\n");
+        exit(2);
+    }
+    mem[i].con = valor_lido;
+
+}
+
+void executa(struct sentenca stn) {
+    switch(stn.mod) {
+        case STNC_DEC: exec_dec(stn.dec); break;
+        case STNC_ATR: exec_atr(stn.atr); break;
     }
 }
 
-
+/************************************************
+ * Caso de teste
+ */
 int main () {
     
     // Inicializa a memória
@@ -310,7 +318,7 @@ int main () {
     }
 
     /*
-     * Constroi o programa
+     * Constroi um programa
      */ 
 
     // sentenca:    char key
