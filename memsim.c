@@ -59,7 +59,7 @@ struct valor {
  *  +------+-------+-------+--------+
  *  | 4097 | 42    | INT   |        |
  *  +------+-------+-------+--------+
- *  | 4097 |  3.14 | FLOAT | pi     |
+ *  | 4098 |  3.14 | FLOAT | pi     |
  *  +------+-------+-------+--------+
  */
 #define LIVRE 0
@@ -285,6 +285,9 @@ void exec_atr(struct atribuicao atr) {
                             valor_lido.mod = VAL_INT;
                             valor_lido.i = mem[i].end;
                             break;
+                        case DESREF_VAR:
+                            valor_lido = mem[mem[i].con.i-END_INI].con;
+                            break;
                     }
                     break;
                 }
@@ -339,10 +342,10 @@ int main () {
      * Constroi um programa
      */ 
 
-    // sentenca:    char key
+    // sentenca:    char chave
     struct acessa_variavel var1;
     var1.mod = VAR;
-    strcpy(var1.nom, "key");
+    strcpy(var1.nom, "chave");
 
     struct declaracao dec1;
     dec1.tip = CHAR;
@@ -352,10 +355,10 @@ int main () {
     st1.mod = STNC_DEC;
     st1.dec = dec1;
 
-    // sentenca:     key = 'k'
+    // sentenca:     chave = 'h'
     struct valor val1;
     val1.mod = VAL_CHAR;
-    val1.c = 'k';
+    val1.c = 'h';
  
     struct atribuicao atr1;
     atr1.mod = ATRIB_VAL;
@@ -379,13 +382,13 @@ int main () {
     st_char_ast_p.mod = STNC_DEC;
     st_char_ast_p.dec = dec_char_ast_p;
 
-    // sentenca:     p = &key
+    // sentenca:     p = &chave
     struct acessa_variavel var_p;
     var_p.mod = VAR;
     strcpy(var_p.nom,"p");
     struct acessa_variavel var_et_key;
     var_et_key.mod = END_VAR;
-    strcpy(var_et_key.nom, "key");
+    strcpy(var_et_key.nom, "chave");
 
     struct atribuicao atr_p_et_key;
     atr_p_et_key.mod = ATRIB_VAR;
@@ -395,6 +398,10 @@ int main () {
     struct sentenca st_p_et_key;
     st_p_et_key.mod = STNC_ATR;
     st_p_et_key.atr = atr_p_et_key;
+
+    // Sentenca       char tela
+
+    // Sentenca       tela = * p
 
     // Mostra o programa
 
