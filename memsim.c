@@ -276,8 +276,16 @@ void exec_atr(struct atribuicao atr) {
         case ATRIB_VAR:
             // Busca variavel pelo nome
             for(i = 0; i < TAM_MEM; i = i + 1) {
-                if (strcmp(atr.lhs.nom, mem[i].nom) == 0) {
-                    valor_lido = mem[i].con;
+                if (strcmp(atr.rhs_var.nom, mem[i].nom) == 0) {
+                    switch (atr.rhs_var.mod) {
+                        case VAR:
+                            valor_lido = mem[i].con;
+                            break;
+                        case END_VAR:
+                            valor_lido.mod = VAL_INT;
+                            valor_lido.i = mem[i].end;
+                            break;
+                    }
                     break;
                 }
             }
@@ -371,12 +379,30 @@ int main () {
     st_char_ast_p.mod = STNC_DEC;
     st_char_ast_p.dec = dec_char_ast_p;
 
+    // sentenca:     p = &key
+    struct acessa_variavel var_p;
+    var_p.mod = VAR;
+    strcpy(var_p.nom,"p");
+    struct acessa_variavel var_et_key;
+    var_et_key.mod = END_VAR;
+    strcpy(var_et_key.nom, "key");
+
+    struct atribuicao atr_p_et_key;
+    atr_p_et_key.mod = ATRIB_VAR;
+    atr_p_et_key.lhs = var_p;
+    atr_p_et_key.rhs_var = var_et_key;
+
+    struct sentenca st_p_et_key;
+    st_p_et_key.mod = STNC_ATR;
+    st_p_et_key.atr = atr_p_et_key;
+
     // Mostra o programa
 
     // Executa o programa
     executa(st1);
     executa(st2);
     executa(st_char_ast_p);
+    executa(st_p_et_key);
 
     // Mostra a memória
     pprint_mem(END_INI, END_INI+10);
