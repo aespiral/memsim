@@ -3,13 +3,14 @@
 int main() {
     char chave;
     chave = 'h';
-    char cofre;
-    cofre = 't';
     char * p;
     p = &chave;
-    printf("%c\n", *p);
+    char tela;
+    tela = *p;
+    printf("%c\n", tela);
+
     p = p + 1;
     printf("%c\n", *p);
-    p = 10000;
+    p = 10000; // Endereco absurdo => Segmentation Fault
     printf("%c\n", *p);
 }

@@ -400,8 +400,27 @@ int main () {
     st_p_et_key.atr = atr_p_et_key;
 
     // Sentenca       char tela
+    struct acessa_variavel var_tela;
+    var_tela.mod = VAR;
+    strcpy(var_tela.nom,"tela");
+
+    struct declaracao d_char_tela;
+    d_char_tela.tip = CHAR;
+    d_char_tela.var = var_tela;
+
+    struct sentenca s_char_tela;
+    s_char_tela.mod = STNC_DEC;
+    s_char_tela.dec = d_char_tela;
 
     // Sentenca       tela = * p
+    struct atribuicao a_tela_ast_p;
+    a_tela_ast_p.mod = ATRIB_VAR;
+    a_tela_ast_p.lhs = var_tela;
+    a_tela_ast_p.rhs_var = var_ast_p;
+
+    struct sentenca s_tela_ast_p;
+    s_tela_ast_p.mod = STNC_ATR;
+    s_tela_ast_p.atr = a_tela_ast_p;
 
     // Mostra o programa
 
@@ -410,6 +429,8 @@ int main () {
     executa(st2);
     executa(st_char_ast_p);
     executa(st_p_et_key);
+    executa(s_char_tela);
+    executa(s_tela_ast_p);
 
     // Mostra a memória
     pprint_mem(END_INI, END_INI+10);
